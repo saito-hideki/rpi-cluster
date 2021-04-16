@@ -1,0 +1,30 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+  become: true
+
+- name: Install requirement packages
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  become: true
+
+- name: Copy modified cmdline.txt that includes cgroup settings
+  copy:
+    src: cmdline.txt
+    dest: /boot/firmware/cmdline.txt
+  become: true
+
+- name: Reboot Pi
+  reboot:
+  become: true
+
+- name: Wait for Pi reboot
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 15
+    timeout: 300
+  delegate_to: localhost

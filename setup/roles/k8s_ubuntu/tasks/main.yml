@@ -1,0 +1,89 @@
+---
+#- name: Remove kubectl if exists
+#  file:
+#    path: /usr/local/bin/kubectl
+#    state: absent
+#  become: true 
+
+#- name: Download kubectl command
+#  uri:
+#    url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/arm64/kubectl"
+#    dest: /usr/local/bin/kubectl
+#    force: yes
+#    mode: 0555
+#    status_code: [200,304]
+#  become: true
+
+- name: Add an Apt signing key for kubernetes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+  become: true
+
+- name: Add an Apt signing key for docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  become: true
+
+- name: Add docker repository into source list
+  apt_repository:
+    #repo: deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable
+    repo: deb https://download.docker.com/linux/ubuntu xenial stable
+    update_cache: true
+    state: present
+  become: true
+
+- name: Add kubernetes repository into sources list
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    update_cache: true
+    state: present
+  become: true
+
+- name: Install docker and kubernetes packages
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - kubectl
+      - kubeadm
+      - kubelet
+      - iptables
+      - arptables
+      - ebtables
+    state: latest
+  become: true
+
+- name: Update alternative commands
+  alternatives:
+    name: "{{ item.key }}"
+    path: "{{ item.value }}"
+  with_dict: "{{ alternatives }}"
+  become: true
+
+- name: Add iptables settings to master node
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ item }}"
+    jump: ACCEPT
+  with_items:
+    - "6443"
+    - "2379:2380"
+    - "10250:10252"
+  when: inventory_hostname == groups['rpi'][0]
+  become: true
+
+- name: Add iptables settings to worker nodes
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ item }}"
+    jump: ACCEPT
+  with_items:
+    - "10250"
+    - "30000:32767"
+  when: inventory_hostname != groups['rpi'][0]
+  become: true

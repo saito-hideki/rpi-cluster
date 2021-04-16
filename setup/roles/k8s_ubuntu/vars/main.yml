@@ -1,0 +1,8 @@
+---
+k8s_version: v1.21.0
+alternatives:
+  iptables: /usr/sbin/iptables-legacy
+  ip6tables: /usr/sbin/ip6tables-legacy
+  arptables: /usr/sbin/arptables-legacy
+  ebtables: /usr/sbin/ebtables-legacy
+

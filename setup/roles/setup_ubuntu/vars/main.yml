@@ -1,0 +1,7 @@
+---
+packages:
+  - apt-transport-https
+  - gnupg2
+  - apt-file
+  - ca-certificates
+  - lsb-release

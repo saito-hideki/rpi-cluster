@@ -1,0 +1,21 @@
+---
+- hosts: rpi
+  gather_facts: true
+
+  tasks:
+    - include_role:
+        name: setup_ubuntu
+        apply:
+          tags:
+            - setup
+      when: ansible_distribution == "Ubuntu"
+      tags:
+        - setup
+    - include_role:
+        name: k8s_ubuntu
+        apply:
+          tags:
+            - k8s
+      when: ansible_distribution == "Ubuntu"
+      tags:
+        - k8s
