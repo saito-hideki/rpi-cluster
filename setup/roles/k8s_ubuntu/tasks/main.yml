@@ -87,3 +87,18 @@
     - "30000:32767"
   when: inventory_hostname != groups['rpi'][0]
   become: true
+
+# According to https://kubernetes.io/docs/setup/production-environment/container-runtimes/#docker
+- name: Copy docker daemon configuration
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+  become: true
+
+- name: Reload systemd
+  service:
+    name: docker
+    daemon_reload: yes
+    enabled: yes
+    state: restarted
+  become: true

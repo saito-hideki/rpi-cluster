@@ -4,4 +4,4 @@ node01
 node02
 
 [rpi:vars]
-ansible_user = 
+#ansible_user =
