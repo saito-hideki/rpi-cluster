@@ -5,3 +5,4 @@ packages:
   - apt-file
   - ca-certificates
   - lsb-release
+  - arping
